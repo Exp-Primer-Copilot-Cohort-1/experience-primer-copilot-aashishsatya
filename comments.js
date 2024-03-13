@@ -1,37 +1,23 @@
-// Create a web server
+// Create web server 
 
-var http = require('http');
-var fs = require('fs');
-var url = require('url');
-var querystring = require('querystring');
-var comments = [];
+// Import the express module
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const comments = require('./comments.json');
 
-http.createServer(function (req, res) {
-    var parseUrl = url.parse(req.url, true);
-    var pathname = parseUrl.pathname;
-    if (pathname === '/') {
-        fs.readFile('./index.html', function (err, data) {
-            if (err) {
-                console.log(err);
-                res.end('404 Not Found');
-            } else {
-                res.end(data);
-            }
-        });
-    } else if (pathname === '/comment') {
-        var query = parseUrl.query;
-        comments.push(query);
-        res.end(JSON.stringify(comments));
-    } else {
-        fs.readFile('.' + pathname, function (err, data) {
-            if (err) {
-                console.log(err);
-                res.end('404 Not Found');
-            } else {
-                res.end(data);
-            }
-        });
-    }
-}).listen(3000, function () {
-    console.log('Server is running...');
+app.use(bodyParser.json());
+
+app.get('/comments', (req, res) => {
+    res.json(comments);
+});
+
+app.post('/comments', (req, res) => {
+    const comment = req.body;
+    comments.push(comment);
+    res.json(comment);
+});
+
+app.listen(3000, () => {
+    console.log('Server is listening on port 3000');
 });
